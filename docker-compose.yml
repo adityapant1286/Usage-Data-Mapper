@@ -1,0 +1,39 @@
+version: "3.7"
+services:
+  # Database
+  postgres:
+    image: postgres:latest
+    network_mode: bridge
+    container_name: udm-db
+    volumes:
+      - postgres-data:/var/lib/postgresql/pgdata
+    expose:
+      - 5432
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_PASSWORD=zuora123
+      - POSTGRES_USER=zuora
+      - POSTGRES_DB=udmdb
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    restart: unless-stopped
+  # Application
+  usagedatamapperconfig:
+    build: .
+    network_mode: bridge
+    expose:
+      - 8080
+    ports:
+      - 8080:8080
+    depends_on:
+      - postgres
+    links:
+      - postgres
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "500k"
+        max-file: "10"
+
+volumes:
+  postgres-data:
